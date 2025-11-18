@@ -53,7 +53,7 @@ export default function AddElementSheet() {
       } else {
         return el;
       }
-    })
+    });
 
 
     setItems(result)
@@ -191,10 +191,10 @@ export default function AddElementSheet() {
             handleItems(el.id, "name", evt.target.value);
           }} />
           <Input type="number" value={el.quantity} name="quantity" onChange={(evt) => {
-            handleItems(el.id, "quantity,evt.target.value");
+            handleItems(el.id, "quantity",evt.target.value);
           }} /> 
-          <Input type="text" value={el.price} name="price" onChange={(evt) => {
-            handleItems(el.id, "price,evt.target.value");
+          <Input type="number" value={el.price} name="price" onChange={(evt) => {
+            handleItems(el.id, "price",evt.target.value);
           }} /> 
           <span>{el.total}</span>
           <Button onClick = {() => {deleteItems (el.id)}}  variant="destructive">
