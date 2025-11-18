@@ -16,38 +16,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-
 <div className="flex flex-col gap-3">
-      <Label htmlFor="date" className="px-1">
+ <Label htmlFor="date" className="px-1">
         Invoice Date
       </Label>
-      <Popover open={open} onOpenChange={setOpen}>
-        <PopoverTrigger asChild>
-          <Button
-            variant="outline"
-            id="date"
-            className="w-48 justify-between font-normal"
-          >
-            {date ? date.toLocaleDateString() : "Select date"}
-            <ChevronDownIcon />
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-auto overflow-hidden p-0" align="start">
-          <Calendar
-            mode="single"
-            selected={date}
-            captionLayout="dropdown"
-            onSelect={(date) => {
-              setDate(date)
-              setOpen(false)
-            }}
-          />
-        </PopoverContent>
-      </Popover>
-    </div>
-
+</div>
+     
+      
 import { buttonVariants } from "./ui/button";
-import { PlusCircleIcon } from "lucide-react";
+import { PlusCircleIcon, Trash } from "lucide-react";
 import { Input } from "./ui/input";
 
 import { ChevronDownIcon } from "lucide-react"
@@ -60,9 +37,34 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 import { useState } from "react";
+import { id } from "date-fns/locale/id";
 
 
 export default function AddElementSheet() {
+  const[items, setItems] = useState ([])
+
+  function handleItems(id, key, value) {
+    const updatedElement = items.find((el) => el.id ===id);
+    const result = items.map((el) => {
+      if(el.id=== id){
+        updatedElement[key] = value;
+        updatedElement.total = updatedElement.quantity * updatedElement.price;
+        return updatedElement;
+      } else {
+        return el;
+      }
+    })
+
+
+    setItems(result)
+  }
+
+
+  function deleteItems (id) {
+    const result = items.filter(el => el.id !== id);
+    setItems(result);
+  }
+
      const [open, setOpen] = useState(false);
   const [date, setDate] = useState(undefined);
     
@@ -74,8 +76,9 @@ export default function AddElementSheet() {
       <SheetTitle>New Invoice</SheetTitle>
       <SheetDescription>Add new element</SheetDescription>
     </SheetHeader>
-    <form className="p-5">
-        <fieldset className="mb-10">
+   <div className="px-5 py-10 h-full overflow-y-scroll">
+     <form>
+        <fieldset>
             <legend className="font-bold text-[#7C5DFA] mb-5">Bill From</legend>
     <div className="grid w-full items-center gap-3 mb-5">
       <Label htmlFor="senderAddress.street">Street Address</Label>
@@ -135,7 +138,7 @@ export default function AddElementSheet() {
           <Button
             variant="outline"
             id="date"
-            className="w-48 justify-between font-normal"
+            className="w-96 justify-between font-normal"
           >
             {date ? date.toLocaleDateString() : "Select date"}
             <ChevronDownIcon />
@@ -155,26 +158,62 @@ export default function AddElementSheet() {
       </Popover>
     </div>
     {/* {SELECT} */}
-
-    <Select>
-      <SelectTrigger className="w-[180px]">
-        <SelectValue placeholder="Select a fruit" />
+     
+     <div className="grid w-full items-center gap-3 mb-5">
+      <Label htmlFor="paymentTerms">Post Code</Label>
+      <Select id="paymentTerms">
+      <SelectTrigger className="w-full">
+        <SelectValue placeholder="Select a term" />
       </SelectTrigger>
       <SelectContent>
         <SelectGroup>
-          <SelectLabel>Fruits</SelectLabel>
-          <SelectItem value="apple">Apple</SelectItem>
-          <SelectItem value="banana">Banana</SelectItem>
-          <SelectItem value="blueberry">Blueberry</SelectItem>
-          <SelectItem value="grapes">Grapes</SelectItem>
-          <SelectItem value="pineapple">Pineapple</SelectItem>
+          <SelectLabel>Terms</SelectLabel>
+          <SelectItem value="1">Net a 1 Day</SelectItem>
+          <SelectItem value="7">Net a 7 Days</SelectItem>
+          <SelectItem value="14">Net a 14 Days</SelectItem>
+          <SelectItem value="30">Net a 30 Days</SelectItem>
         </SelectGroup>
       </SelectContent>
     </Select>
-     </div>
-        </fieldset>
-
+    </div>
+    </div>
+     <div className="grid w-full items-center gap-3">
+      <Label htmlFor="description">Project Description</Label>
+      <Input type="text" id="description" name="description"/>
+    </div>
+    </fieldset>
     </form>
+    {/* {Items} */}
+    <div className="flex flex-col gap-3 mb-3">
+      {items.length > 0 && items.map((el) => {
+        return <div className="flex items-center gap-5">
+          <Input type="text" value={el.name} name="name" onChange={(evt) => {
+            handleItems(el.id, "name", evt.target.value);
+          }} />
+          <Input type="number" value={el.quantity} name="quantity" onChange={(evt) => {
+            handleItems(el.id, "quantity,evt.target.value");
+          }} /> 
+          <Input type="text" value={el.price} name="price" onChange={(evt) => {
+            handleItems(el.id, "price,evt.target.value");
+          }} /> 
+          <span>{el.total}</span>
+          <Button onClick = {() => {deleteItems (el.id)}}  variant="destructive">
+            <Trash />
+            </Button>
+        </div>
+      })}
+
+      <button className="w-full p-6 rounded-full" variant="outline" type="button" onClick={() => {
+        setItems([...items,{
+          name:"",
+          quantity:0,
+          prize:0,
+          total:0,
+          id: window.crypto.randomUUID(), 
+        }])
+      }}>+ Add new item</button>
+    </div>
+   </div>
   </SheetContent>
 </Sheet>
   );
